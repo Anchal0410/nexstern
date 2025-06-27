@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* src/styles/edge-styles.css */
+
+/* Edge animation styles */
+.edge-animated {
+  stroke-dasharray: 8, 4;
+  animation: edge-dash 2s linear infinite;
+}
+
+@keyframes edge-dash {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -12;
+  }
+}
+
+/* Base edge path styles */
+.edge-path {
+  transition: stroke-width 0.2s ease, stroke 0.2s ease, filter 0.2s ease;
+}
+
+.edge-path:hover {
+  stroke-width: 3;
+}
+
+/* Selected edge styles */
+.edge-selected {
+  stroke-width: 3 !important;
+  stroke: #3b82f6 !important;
+}
+
+/* Highlighted edge styles */
+.edge-highlighted {
+  stroke-width: 4 !important;
+  stroke: #22c55e !important;
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.5));
+}
+
+/* Edge label styles */
+.edge-label {
+  font-size: 10px;
+  font-weight: 500;
+  pointer-events: none;
+  user-select: none;
+}
+
+.edge-label-background {
+  fill: white;
+  stroke-width: 1;
+  rx: 6;
+  opacity: 0.9;
+}
+
+/* Edge interaction styles */
+.edge-interactive:hover .edge-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Different edge types */
+.edge-type-success {
+  stroke: #22c55e;
+}
+
+.edge-type-error {
+  stroke: #ef4444;
+}
+
+.edge-type-warning {
+  stroke: #f59e0b;
+}
+
+.edge-type-info {
+  stroke: #3b82f6;
+}
+
+/* Connection flow animation */
+.edge-flow {
+  stroke-dasharray: 6, 6;
+  animation: edge-flow 3s linear infinite;
+}
+
+@keyframes edge-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 12;
+  }
+}
+
+/* Pulse animation for active edges */
+.edge-pulse {
+  animation: edge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes edge-pulse {
+  0%, 100% {
+    stroke-width: 2;
+    opacity: 1;
+  }
+  50% {
+    stroke-width: 4;
+    opacity: 0.7;
+  }
+}
+
+/* Glow effect for special edges */
+.edge-glow {
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+/* Dotted edge style */
+.edge-dotted {
+  stroke-dasharray: 2, 4;
+}
+
+/* Dashed edge style */
+.edge-dashed {
+  stroke-dasharray: 8, 4;
+}
+
+/* Thick edge style */
+.edge-thick {
+  stroke-width: 4;
+}
+
+/* Thin edge style */
+.edge-thin {
+  stroke-width: 1;
+}
+
+/* Curved edge specific styles */
+.edge-curved {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Step edge specific styles */
+.edge-step {
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+/* Smooth step edge styles */
+.edge-smoothstep {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Edge container styles */
+.edge-container {
+  pointer-events: none;
+}
+
+.edge-container.interactive {
+  pointer-events: auto;
+}
+
+/* Responsive edge styles */
+@media (max-width: 768px) {
+  .edge-path {
+    stroke-width: 3;
+  }
+  
+  .edge-selected {
+    stroke-width: 4 !important;
+  }
+  
+  .edge-highlighted {
+    stroke-width: 5 !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .edge-path {
+    stroke-width: 3;
+  }
+  
+  .edge-selected {
+    stroke: #000000 !important;
+    stroke-width: 4 !important;
+  }
+  
+  .edge-highlighted {
+    stroke: #ff0000 !important;
+    stroke-width: 5 !important;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .edge-animated,
+  .edge-flow,
+  .edge-pulse {
+    animation: none;
+  }
+  
+  .edge-path {
+    transition: none;
+  }
+}
