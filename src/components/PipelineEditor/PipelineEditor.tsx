@@ -385,7 +385,6 @@ const PipelineEditor: React.FC = () => {
                 • <strong>Delete:</strong> Select items and press Delete key
               </li>
             </ul>
-
             <div className="pt-2">
               <strong>Keyboard Shortcuts:</strong>
             </div>
@@ -410,16 +409,6 @@ const PipelineEditor: React.FC = () => {
                 • <kbd className="bg-gray-100 px-1 rounded">Ctrl +/-</kbd> Zoom
                 in/out
               </li>
-            </ul>
-
-            <div className="pt-2">
-              <strong>Connection Rules:</strong>
-            </div>
-            <ul className="space-y-1">
-              <li>• 🟢 Green dots: Start connections (outgoing)</li>
-              <li>• 🔵 Blue dots: End connections (incoming)</li>
-              <li>• ❌ No self-loops or cycles allowed</li>
-              <li>• ✅ Drag nodes anywhere on canvas</li>
             </ul>
           </div>
         )}
