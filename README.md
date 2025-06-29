@@ -13,10 +13,6 @@ A React-TypeScript application for creating and managing Directed Acyclic Graphs
 
 ![Main Interface](![alt text](image.png))
 
-![Node Types](https://via.placeholder.com/600x400/10b981/ffffff?text=Node+Types+%26+Colors)
-
-![Node Menu](c:\Users\91941\AppData\Local\Packages\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\TempState\ScreenClip\{310584A6-6BB4-4706-91FC-4E5A05202C37}.png)
-
 ![Validation](![alt text](image-1.png))
 
 ## ⚡ Setup Instructions
