@@ -1,7 +1,14 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "jsx": "react-jsx", 
+    "target": "es2020",
+    "lib": ["dom", "es2020"],
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    
+  }
 }

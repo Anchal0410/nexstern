@@ -157,23 +157,29 @@ const Edge: React.FC<EdgeProps> = ({
       <EdgePath
         sourcePosition={adjustedSource}
         targetPosition={adjustedTarget}
-        pathType={pathType}
+        // pathType={pathType}
         className="pointer-events-auto cursor-pointer"
         style={{
           stroke: "transparent",
           strokeWidth: 20,
           fill: "none",
         }}
-        {...EdgePathPresets[pathType === "bezier" ? "default" : pathType]}
+        {...EdgePathPresets[
+          pathType === "bezier"
+            ? "default"
+            : pathType === "smoothstep"
+            ? "smoothStep"
+            : pathType
+        ]}
       />
 
       {/* Visible edge path */}
       <EdgePath
         sourcePosition={adjustedSource}
         targetPosition={adjustedTarget}
-        pathType={pathType}
+        // pathType={pathType}
         markerEnd={`url(#${markerId})`}
-        animated={animated}
+        // animated={animated}
         className={`pointer-events-none transition-all duration-200 ${
           isSelected ? "edge-selected" : ""
         } ${isHighlighted ? "edge-highlighted" : ""}`}
@@ -184,7 +190,13 @@ const Edge: React.FC<EdgeProps> = ({
             ? "drop-shadow(0 0 6px rgba(34, 197, 94, 0.4))"
             : undefined,
         }}
-        {...EdgePathPresets[pathType === "bezier" ? "default" : pathType]}
+        {...EdgePathPresets[
+          pathType === "bezier"
+            ? "default"
+            : pathType === "smoothstep"
+            ? "smoothStep"
+            : pathType
+        ]}
       />
 
       {/* Edge label */}
@@ -219,14 +231,20 @@ const Edge: React.FC<EdgeProps> = ({
       <EdgePath
         sourcePosition={adjustedSource}
         targetPosition={adjustedTarget}
-        pathType={pathType}
+        // pathType={pathType}
         className="pointer-events-auto cursor-pointer opacity-0"
         style={{
           strokeWidth: 20,
           stroke: "transparent",
           fill: "none",
         }}
-        {...EdgePathPresets[pathType === "bezier" ? "default" : pathType]}
+        {...EdgePathPresets[
+          pathType === "bezier"
+            ? "default"
+            : pathType === "smoothstep"
+            ? "smoothStep"
+            : pathType
+        ]}
       />
 
       {/* Event handling overlay */}

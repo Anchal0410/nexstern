@@ -51,7 +51,6 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
 
     const handleCanvasClick = useCallback(
       (e: React.MouseEvent) => {
-        // Only clear selection if clicking on the canvas itself, not on nodes or edges
         if (e.target === e.currentTarget) {
           onClearSelection();
         }
@@ -61,10 +60,7 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
 
     const handleConnectionStart = useCallback(
       (nodeId: string, side: "left" | "right", position: Position) => {
-        // Only allow connections from right side (outgoing)
-        if (side === "left") {
-          return;
-        }
+        if (side === "left") return;
 
         setConnectionState({
           isConnecting: true,
@@ -73,7 +69,6 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
           currentPosition: position,
         });
 
-        // Update drag state
         onDragStateChange({
           isDragging: true,
           dragType: "connection",
@@ -90,7 +85,7 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
         if (connectionState.isConnecting) {
           const rect = (
             ref as React.RefObject<HTMLDivElement>
-          ).current?.getBoundingClientRect();
+          )?.current?.getBoundingClientRect();
           if (!rect) return;
 
           const currentPosition = {
@@ -98,17 +93,24 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
             y: e.clientY - rect.top,
           };
 
-          setConnectionState((prev) => ({
-            ...prev,
-            currentPosition,
-          }));
+          setConnectionState((prev) => {
+            const newState = {
+              ...prev,
+              currentPosition,
+            };
 
-          onDragStateChange({
-            isDragging: prev.isDragging,
-            dragType: prev.dragType,
-            dragData: prev.dragData,
-            startPosition: prev.startPosition,
-            currentPosition,
+            onDragStateChange({
+              isDragging: true,
+              dragType: "connection",
+              dragData: {
+                sourceNodeId: prev.sourceNodeId!,
+                sourceSide: prev.sourceSide!,
+              },
+              startPosition: prev.currentPosition!,
+              currentPosition,
+            });
+
+            return newState;
           });
         }
       },
@@ -120,10 +122,9 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
         if (!connectionState.isConnecting || !connectionState.sourceNodeId)
           return;
 
-        // Get mouse position relative to canvas
         const rect = (
           ref as React.RefObject<HTMLDivElement>
-        ).current?.getBoundingClientRect();
+        )?.current?.getBoundingClientRect();
         if (!rect) return;
 
         const mousePos = {
@@ -131,14 +132,12 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
           y: e.clientY - rect.top,
         };
 
-        // Find the target node by checking if mouse is over any node's left connection area
         let targetNodeId: string | null = null;
 
         for (const node of nodes) {
           const nodeLeft = node.position.x;
           const nodeTop = node.position.y;
 
-          // Check if mouse is near the left connection point
           const leftConnectionX = nodeLeft;
           const leftConnectionY = nodeTop + NODE_HEIGHT / 2;
 
@@ -148,7 +147,6 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
           );
 
           if (distance <= 20 && node.id !== connectionState.sourceNodeId) {
-            // 20px tolerance
             targetNodeId = node.id;
             break;
           }
@@ -158,7 +156,6 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
           onEdgeCreate(connectionState.sourceNodeId, targetNodeId);
         }
 
-        // Reset connection state
         setConnectionState({
           isConnecting: false,
           sourceNodeId: null,
@@ -187,21 +184,18 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
       if (!sourceNode) return null;
 
       const sourcePosition = {
-        x: sourceNode.position.x + NODE_WIDTH, // Right edge
-        y: sourceNode.position.y + NODE_HEIGHT / 2, // Middle
+        x: sourceNode.position.x + NODE_WIDTH,
+        y: sourceNode.position.y + NODE_HEIGHT / 2,
       };
 
-      // Check if we're near any target nodes for visual feedback
       let nearTargetNode = false;
       let targetHighlight = null;
 
       for (const node of nodes) {
         if (node.id === connectionState.sourceNodeId) continue;
 
-        const nodeLeft = node.position.x;
-        const nodeTop = node.position.y;
-        const leftConnectionX = nodeLeft;
-        const leftConnectionY = nodeTop + NODE_HEIGHT / 2;
+        const leftConnectionX = node.position.x;
+        const leftConnectionY = node.position.y + NODE_HEIGHT / 2;
 
         const distance = Math.sqrt(
           Math.pow(connectionState.currentPosition.x - leftConnectionX, 2) +
@@ -246,11 +240,7 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
               />
             </marker>
           </defs>
-
-          {/* Connection target highlight */}
           {targetHighlight}
-
-          {/* Connection line */}
           <path
             d={`M ${sourcePosition.x} ${sourcePosition.y} L ${connectionState.currentPosition.x} ${connectionState.currentPosition.y}`}
             stroke={nearTargetNode ? "#22c55e" : "#3b82f6"}
@@ -272,13 +262,10 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         style={{
-          backgroundImage: `
-          radial-gradient(circle, #d1d5db 1px, transparent 1px)
-        `,
+          backgroundImage: `radial-gradient(circle, #d1d5db 1px, transparent 1px)`,
           backgroundSize: "20px 20px",
         }}
       >
-        {/* Render Edges */}
         {edges.map((edge) => {
           const sourceNode = nodes.find((n) => n.id === edge.source);
           const targetNode = nodes.find((n) => n.id === edge.target);
@@ -299,7 +286,6 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
           );
         })}
 
-        {/* Render Nodes */}
         {nodes.map((node) => (
           <div key={node.id} data-node-id={node.id}>
             <Node
@@ -314,10 +300,8 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
           </div>
         ))}
 
-        {/* Temporary connection line */}
         {renderConnectionLine()}
 
-        {/* Canvas Instructions */}
         {nodes.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-gray-500 bg-white p-8 rounded-lg shadow-md border border-gray-200">
@@ -338,7 +322,6 @@ const Canvas = forwardRef<HTMLDivElement, CanvasProps>(
           </div>
         )}
 
-        {/* Connection Instructions */}
         {connectionState.isConnecting && (
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg shadow-md z-30">
             🎯 Drag to a blue connection point to create edge

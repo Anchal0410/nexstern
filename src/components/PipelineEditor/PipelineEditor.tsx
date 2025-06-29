@@ -1,13 +1,5 @@
 import React, { useCallback, useRef, useEffect } from "react";
-import {
-  Plus,
-  Layout,
-  Trash2,
-  Download,
-  RotateCcw,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { Plus, Layout, Trash2, RotateCcw, Eye, EyeOff } from "lucide-react";
 import type { DragState } from "../../types/dag";
 import Canvas from "../Canvas/Canvas";
 import CanvasControls from "../Canvas/CanvasControls";

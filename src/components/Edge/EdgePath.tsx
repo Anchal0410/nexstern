@@ -158,7 +158,7 @@ export const createGradientPath = (
   id: string,
   startColor: string,
   endColor: string
-): JSX.Element => {
+) => {
   return (
     <defs>
       <linearGradient id={id} x1="0%" y1="0%" x2="100%" y2="0%">

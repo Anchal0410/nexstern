@@ -148,7 +148,6 @@ export function createCurvedPath(
   curvature: number = 0.3
 ): string {
   const dx = end.x - start.x;
-  const dy = end.y - start.y;
 
   // Control points for bezier curve
   const cp1x = start.x + dx * curvature;

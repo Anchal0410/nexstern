@@ -33,7 +33,9 @@ const CanvasControls: React.FC<CanvasControlsProps> = ({
           disabled={canvasState.zoom <= 0.1}
           tooltip="Zoom Out"
           className="!p-2"
-        ></Button>
+        >
+          {null}
+        </Button>
 
         <div className="px-2 py-1 text-xs font-mono min-w-[50px] text-center bg-gray-50 rounded">
           {zoomPercentage}%
@@ -46,7 +48,9 @@ const CanvasControls: React.FC<CanvasControlsProps> = ({
           disabled={canvasState.zoom >= 3}
           tooltip="Zoom In"
           className="!p-2"
-        ></Button>
+        >
+          {null}
+        </Button>
       </div>
 
       {/* View Controls */}
@@ -67,7 +71,9 @@ const CanvasControls: React.FC<CanvasControlsProps> = ({
           variant="secondary"
           tooltip="Reset View"
           className="!p-2"
-        ></Button>
+        >
+          {null}
+        </Button>
       </div>
 
       {/* Pan Info */}
