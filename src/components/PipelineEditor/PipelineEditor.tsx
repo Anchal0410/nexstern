@@ -1,5 +1,13 @@
 import React, { useCallback, useRef, useEffect } from "react";
-import { Plus, Layout, Trash2, Download, RotateCcw } from "lucide-react";
+import {
+  Plus,
+  Layout,
+  Trash2,
+  Download,
+  RotateCcw,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import type { DragState } from "../../types/dag";
 import Canvas from "../Canvas/Canvas";
 import CanvasControls from "../Canvas/CanvasControls";
@@ -15,8 +23,10 @@ import { applyBestLayout } from "../../utils/layoutUtils";
 import { findNonOverlappingPosition } from "../../utils/geometryUtils";
 
 const PipelineEditor: React.FC = () => {
+  // Refs
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  // Custom hooks
   const nodeManagement = useNodeManagement([]);
   const edgeManagement = useEdgeManagement([], nodeManagement.nodes);
   const selection = useSelection();
@@ -26,6 +36,7 @@ const PipelineEditor: React.FC = () => {
     edgeManagement.edges
   );
 
+  // Local state
   const [dragState, setDragState] = React.useState<DragState>({
     isDragging: false,
     dragType: null,
@@ -34,8 +45,18 @@ const PipelineEditor: React.FC = () => {
     currentPosition: null,
   });
 
+  // JSON Preview state - Fixed with proper state management
   const [showJSONPreview, setShowJSONPreview] = React.useState(false);
 
+  // Toggle JSON Preview function
+  const toggleJSONPreview = useCallback(() => {
+    setShowJSONPreview((prev) => {
+      console.log("Toggling JSON preview:", !prev); // Debug log
+      return !prev;
+    });
+  }, []);
+
+  // Update canvas size when component mounts or resizes
   useEffect(() => {
     const updateCanvasSize = () => {
       if (canvasRef.current) {
@@ -55,7 +76,6 @@ const PipelineEditor: React.FC = () => {
   // Node management functions
   const addNode = useCallback(() => {
     try {
-      // Find a good position that doesn't overlap with existing nodes
       const position = findNonOverlappingPosition(nodeManagement.nodes, {
         x: Math.random() * 300 + 100,
         y: Math.random() * 200 + 100,
@@ -65,7 +85,6 @@ const PipelineEditor: React.FC = () => {
       selection.clearSelection();
       selection.selectNode(newNode.id);
     } catch (error) {
-      // User cancelled the prompt
       console.log("Node creation cancelled");
     }
   }, [nodeManagement, selection]);
@@ -75,9 +94,7 @@ const PipelineEditor: React.FC = () => {
       selection.selectedItems;
 
     if (selectedNodes.length > 0) {
-      // Remove edges connected to selected nodes
       edgeManagement.removeEdgesForNodes(selectedNodes);
-      // Remove selected nodes
       nodeManagement.removeNodes(selectedNodes);
     }
 
@@ -88,7 +105,7 @@ const PipelineEditor: React.FC = () => {
     selection.clearSelection();
   }, [selection, nodeManagement, edgeManagement]);
 
-  // Auto layout with improved positioning
+  // Auto layout
   const applyAutoLayout = useCallback(() => {
     const layoutedNodes = applyBestLayout(
       nodeManagement.nodes,
@@ -98,7 +115,6 @@ const PipelineEditor: React.FC = () => {
 
     nodeManagement.setNodes(layoutedNodes);
 
-    // Fit to view after layout
     setTimeout(() => {
       canvasState.fitToView(layoutedNodes, 50);
     }, 100);
@@ -126,10 +142,9 @@ const PipelineEditor: React.FC = () => {
     [selection]
   );
 
-  // Enhanced keyboard event handling
+  // Keyboard event handling
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Ignore if user is typing in an input
       if (
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement
@@ -176,13 +191,11 @@ const PipelineEditor: React.FC = () => {
             canvasState.resetZoom();
           }
           break;
-        case "l":
-        case "L":
+        case "j":
+        case "J":
           if (event.ctrlKey || event.metaKey) {
             event.preventDefault();
-            if (nodeManagement.nodes.length >= 2) {
-              applyAutoLayout();
-            }
+            toggleJSONPreview();
           }
           break;
       }
@@ -196,7 +209,7 @@ const PipelineEditor: React.FC = () => {
     nodeManagement,
     edgeManagement,
     canvasState,
-    applyAutoLayout,
+    toggleJSONPreview,
   ]);
 
   const selectionCount = selection.getSelectionCount();
@@ -233,7 +246,7 @@ const PipelineEditor: React.FC = () => {
             onClick={applyAutoLayout}
             icon={Layout}
             variant="secondary"
-            tooltip="Auto Layout - Arrange nodes automatically (Ctrl+L)"
+            tooltip="Auto Layout - Arrange nodes automatically"
             disabled={nodeManagement.nodes.length < 2}
           >
             Auto Layout
@@ -287,15 +300,21 @@ const PipelineEditor: React.FC = () => {
       </div>
 
       {/* Right Sidebar */}
-      <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
+      <div
+        className={`bg-white border-l border-gray-200 flex flex-col transition-all duration-300 ${
+          showJSONPreview ? "w-96" : "w-80"
+        }`}
+      >
         {/* Status Panel */}
         <div className="p-4 border-b border-gray-200">
           <StatusPanel validation={validation} />
         </div>
 
         {/* Quick Actions */}
-        <div className="p-4 border-b border-gray-200 space-y-2">
+        <div className="p-4 border-b border-gray-200 space-y-3">
           <h4 className="text-sm font-medium text-gray-900">Quick Actions</h4>
+
+          {/* Main action buttons */}
           <div className="grid grid-cols-2 gap-2">
             <Button
               onClick={() => canvasState.fitToView(nodeManagement.nodes)}
@@ -306,100 +325,104 @@ const PipelineEditor: React.FC = () => {
               Fit View
             </Button>
             <Button
-              onClick={() => setShowJSONPreview(!showJSONPreview)}
-              icon={Download}
+              onClick={applyAutoLayout}
               variant="secondary"
               className="text-xs !py-1"
+              disabled={nodeManagement.nodes.length < 2}
             >
-              {showJSONPreview ? "Hide" : "Show"} JSON
+              Layout
+            </Button>
+          </div>
+
+          {/* JSON Preview Toggle - Fixed */}
+          <div className="pt-2">
+            <Button
+              onClick={toggleJSONPreview}
+              icon={showJSONPreview ? EyeOff : Eye}
+              variant={showJSONPreview ? "primary" : "secondary"}
+              className="w-full text-xs !py-2"
+              tooltip={`${
+                showJSONPreview ? "Hide" : "Show"
+              } JSON Preview (Ctrl+J)`}
+            >
+              {showJSONPreview ? "Hide JSON Preview" : "Show JSON Preview"}
             </Button>
           </div>
         </div>
 
-        {/* JSON Preview */}
+        {/* JSON Preview - Fixed conditional rendering */}
         {showJSONPreview && (
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden border-t border-gray-200">
             <JSONPreview
               nodes={nodeManagement.nodes}
               edges={edgeManagement.edges}
+              isVisible={showJSONPreview}
             />
           </div>
         )}
 
-        {/* Enhanced Help Text */}
-        <div className="p-4 text-xs text-gray-500 border-t border-gray-200 space-y-2">
-          <div>
-            <strong>How to Use:</strong>
-          </div>
-          <ul className="space-y-1">
-            <li>
-              • <strong>Add nodes:</strong> Click "Add Node" button
-            </li>
-            <li>
-              • <strong>🎯 Drag nodes:</strong> Click and drag any node to move
-              it
-            </li>
-            <li>
-              • <strong>Connect:</strong> Drag from green to blue dots
-            </li>
-            <li>
-              • <strong>Select:</strong> Click items (Shift for multi-select)
-            </li>
-            <li>
-              • <strong>Delete:</strong> Select items and press Delete key
-            </li>
-          </ul>
+        {/* Help Text - Only show when JSON is hidden */}
+        {!showJSONPreview && (
+          <div className="p-4 text-xs text-gray-500 border-t border-gray-200 space-y-2">
+            <div>
+              <strong>How to Use:</strong>
+            </div>
+            <ul className="space-y-1">
+              <li>
+                • <strong>Add nodes:</strong> Click "Add Node" button
+              </li>
+              <li>
+                • <strong>🎯 Drag nodes:</strong> Click and drag any node to
+                move it
+              </li>
+              <li>
+                • <strong>Connect:</strong> Drag from green to blue dots
+              </li>
+              <li>
+                • <strong>Select:</strong> Click items (Shift for multi-select)
+              </li>
+              <li>
+                • <strong>Delete:</strong> Select items and press Delete key
+              </li>
+            </ul>
 
-          <div className="pt-2">
-            <strong>Keyboard Shortcuts:</strong>
-          </div>
-          <ul className="space-y-1">
-            <li>
-              • <kbd className="bg-gray-100 px-1 rounded">Del</kbd> Delete
-              selected
-            </li>
-            <li>
-              • <kbd className="bg-gray-100 px-1 rounded">Ctrl+A</kbd> Select
-              all
-            </li>
-            <li>
-              • <kbd className="bg-gray-100 px-1 rounded">Esc</kbd> Clear
-              selection
-            </li>
-            <li>
-              • <kbd className="bg-gray-100 px-1 rounded">Ctrl+L</kbd> Auto
-              layout
-            </li>
-            <li>
-              • <kbd className="bg-gray-100 px-1 rounded">Ctrl +/-</kbd> Zoom
-              in/out
-            </li>
-            <li>
-              • <kbd className="bg-gray-100 px-1 rounded">Ctrl+0</kbd> Reset
-              zoom
-            </li>
-          </ul>
+            <div className="pt-2">
+              <strong>Keyboard Shortcuts:</strong>
+            </div>
+            <ul className="space-y-1">
+              <li>
+                • <kbd className="bg-gray-100 px-1 rounded">Del</kbd> Delete
+                selected
+              </li>
+              <li>
+                • <kbd className="bg-gray-100 px-1 rounded">Ctrl+A</kbd> Select
+                all
+              </li>
+              <li>
+                • <kbd className="bg-gray-100 px-1 rounded">Esc</kbd> Clear
+                selection
+              </li>
+              <li>
+                • <kbd className="bg-gray-100 px-1 rounded">Ctrl+J</kbd> Toggle
+                JSON
+              </li>
+              <li>
+                • <kbd className="bg-gray-100 px-1 rounded">Ctrl +/-</kbd> Zoom
+                in/out
+              </li>
+            </ul>
 
-          <div className="pt-2">
-            <strong>Connection Rules:</strong>
+            <div className="pt-2">
+              <strong>Connection Rules:</strong>
+            </div>
+            <ul className="space-y-1">
+              <li>• 🟢 Green dots: Start connections (outgoing)</li>
+              <li>• 🔵 Blue dots: End connections (incoming)</li>
+              <li>• ❌ No self-loops or cycles allowed</li>
+              <li>• ✅ Drag nodes anywhere on canvas</li>
+            </ul>
           </div>
-          <ul className="space-y-1">
-            <li>• 🟢 Green dots: Start connections (outgoing)</li>
-            <li>• 🔵 Blue dots: End connections (incoming)</li>
-            <li>• ❌ No self-loops or cycles allowed</li>
-            <li>• ✅ Drag nodes anywhere on canvas</li>
-          </ul>
-
-          <div className="pt-2">
-            <strong>Tips:</strong>
-          </div>
-          <ul className="space-y-1">
-            <li>• Nodes snap to canvas boundaries</li>
-            <li>• Green highlight shows valid connection targets</li>
-            <li>• Use Auto Layout to organize your graph</li>
-            <li>• Export JSON structure for external use</li>
-          </ul>
-        </div>
+        )}
       </div>
     </div>
   );
